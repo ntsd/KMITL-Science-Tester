@@ -6,26 +6,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import requests
 
-class PythonOrgSearch():
-
-    def setUp(self):
-        self.driver = webdriver.Firefox()
-
-    def test_search_in_python_org(self):
-        driver = self.driver
-        driver.get("http://www.python.org")
-        self.assertIn("Python", driver.title)
-        elem = driver.find_element_by_name("q")
-        elem.send_keys("pycon")
-        elem.send_keys(Keys.RETURN)
-        assert "No results found." not in driver.page_source
-
-
-    def tearDown(self):
-        self.driver.close()
 
 class kmitlScienceTest(unittest.TestCase):
-    delay = 30
+    delay = 3000
 
     def setUp(self):
         self.driver = webdriver.Firefox()
@@ -141,8 +124,33 @@ class kmitlScienceTest(unittest.TestCase):
 
         self.assertEqual([], deadPics)
 
+    def testSearch(self):
+        print("----------------Search Test---------------")
+        driver = self.driver
+        driver.get("http://sci-en.kmitl.ac.th/index.php/component/search")
+        searchEditText = driver.find_element(by=By.ID, value="search-searchword")
+        text = "test"
+        searchEditText.send_keys(text)
+        searchButtom = driver.find_element_by_tag_name("button")
+        searchButtom.click()
+        try:
+            element_present = EC.presence_of_element_located((By.CLASS_NAME, 'search-results'))
+            WebDriverWait(driver, self.delay).until(element_present)
+            print("Page is ready!")
+        except:
+            print("Loading took too much time!")
+
+        results = driver.find_element_by_class_name("search-results")
+        for r in range(len(results.find_elements_by_class_name("result-title"))):
+            print(results.find_elements_by_class_name("result-title")[r].text)
+            print(results.find_elements_by_class_name("result-text")[r].text)
+            assert text in results.find_elements_by_class_name("result-title")[r].text or \
+                    text in results.find_elements_by_class_name("result-text")[r].text, "Search text doesn't in result"
+
+
+
     def tearDown(self):
-        self.driver.close()
+        # self.driver.close()
         pass
 
 
